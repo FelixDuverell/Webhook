@@ -42,7 +42,14 @@ app.post("/forward", async (req, res) => {
       return res.status(400).send("Ingen data mottagen eller felaktig data")
     }
 
-    res.status(200).send("Data vidarebefordrad")
+    // Skicka vidare data till webhook-test.com
+    const webhookResponse = await axios.post(
+      "https://webhook-test.com/ce29422ccfcc9702264fb9cad36b56c7",
+      incomingData
+    )
+
+    console.log("Data skickad till webhook-test.com:", webhookResponse.data)
+    res.status(200).send("Data vidarebefordrad till webhook-test.com")
   } catch (error) {
     console.error("Fel vid vidarebefordran", error)
     res.status(500).send("Något gick fel vid vidarebefordran")
@@ -68,6 +75,15 @@ app.post("/webhook", verifySignature, async (req, res) => {
     res.status(500).send("Något gick fel vid mottagning")
   }
 })
+
+// Starta servern
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`)
+})
+
+// ___________________________________________________________________________________________
+// ___________________________________________________________________________________________
+// Om man vill visa api på HTML sida
 
 // Route för att visa hundbilden på en HTML-sida
 app.get("/", async (req, res) => {
@@ -104,9 +120,4 @@ app.get("/", async (req, res) => {
       .status(500)
       .send("Något gick fel vid hämtning av bild eller vidarebefordran")
   }
-})
-
-// Starta servern
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
 })
